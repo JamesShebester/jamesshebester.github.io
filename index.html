@@ -1,7 +1,95 @@
 <!DOCTYPE html>
 <html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
+  <head>
+  <title>Product Sorter</title>
+  <script src="https://unpkg.com/@optimizely/optimizely-sdk/dist/optimizely.browser.umd.min.js"></script>
+  <script src="https://cdn.optimizely.com/onboarding/6n_4TqndSIOMhF707k1MdQ.json/tag.js"></script>
+  </head>
+  <body>
+    <pre>Welcome to our product catalog!</pre>
+    <pre>Let's see what product sorting the visitors experience!</pre>
+    <pre id="experiences"></pre>
+    <pre id="results"></pre>
+    <script>
+      var DEBUG_TEXT_ON = '[DEBUG: Feature ON]';
+      var DEBUG_TEXT_OFF = '[DEBUG: Feature OFF]';
+
+      function getVisitorExperience(optimizely, userId) {
+        // Create a user and decide a flag rule (such as an A/B test) for them
+        var user = optimizely.createUserContext(userId);
+        var decision = user.decide('product_sort');
+
+        let text;
+
+        var isEnabled = decision.enabled;
+
+        if (isEnabled) {
+          text = decision.variables['sort_method'];
+          // Default fallback if flag off for user
+        } else {
+          text = 'Flag off. User saw the product list sorted alphabetically by default.';
+        }
+
+        return {
+          text: text,
+          isEnabled: isEnabled,
+          debugText: isEnabled ? DEBUG_TEXT_ON : DEBUG_TEXT_OFF,
+        };
+      }
+
+      var optimizelyClientInstance = window.optimizelySdk.createInstance({
+        datafile: window.optimizelyDatafile,
+      })
+
+      // Generate random user ids to represent visitors
+      // Each visitor will get randomly & deterministically bucketed into a flag variation
+      var userIds = [];
+      for (var i = 0; i < 50; i++) {
+        let id = Math.floor(Math.random() * (1000000 - 100000) + 100000);
+        userIds.push(id.toString());
+      }
+
+      // For each visitor, let's see what experience they get
+      var usersExperiences = [];
+      userIds.forEach(userId => {
+        usersExperiences.push(getVisitorExperience(optimizelyClientInstance, userId));
+      });
+
+      // Count how many visitors had the feature flag enabled
+      var onVariations = usersExperiences.reduce((accum, value) => ((value.isEnabled) ? accum + 1 : accum), 0);
+
+      var experiences = usersExperiences.map((variation, index) => {
+        var debugText = onVariations > 0 ? ' ' + variation.debugText : '';
+
+        return `Visitor #${index}:${debugText} ${variation.text}\n`;
+      });
+
+      var experiencesElement = document.getElementById('experiences');
+      experiences.forEach((experience) => {
+        experiencesElement.innerText += experience;
+      });
+
+      // Count what experience each visitor got
+      var freqMap = usersExperiences.reduce((accum, value) => {
+        accum[value.text] = accum[value.text] ? accum[value.text] + 1 : 1;
+        return accum;
+      }, {});
+
+      var total = userIds.length;
+      var percentage = Math.round(onVariations / total * 100);
+
+      var results = document.getElementById('results');
+
+      if (onVariations > 0) {
+        results.innerText += `\n${onVariations} out of ${total} visitors (~${percentage}%) had the feature enabled.\n`;
+
+        Object.keys(freqMap).forEach((text) => {
+          var perc = Math.round(freqMap[text] / total * 100);
+          results.innerText += `${freqMap[text]} visitors (~${perc}%) got the experience: \'${text}\'\n`;
+        })
+      }
+
+      results.innerText += '\nUpdate the feature from the tutorial and refresh this page to show the updated visitor\'s experiences!\n';
+    </script>
+  </body>
 </html>
