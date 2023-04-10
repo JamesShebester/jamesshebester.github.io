@@ -13,7 +13,33 @@
     <script>
       var DEBUG_TEXT_ON = '[DEBUG: Feature ON]';
       var DEBUG_TEXT_OFF = '[DEBUG: Feature OFF]';
-
+      
+      //NOTE: This is to setup User Profile Service
+      var userProfileService = {
+        // Adapter that provides helpers to read and write from localStorage
+        localStorageAdapter: {
+          UPS_LS_KEY: 'optimizely-ups-data',
+          read: function() {
+            var UPSDataObject = JSON.parse(localStorage.getItem(this.UPS_LS_KEY) || '{}');
+            return UPSDataObject;
+          },
+          write: function(data) {
+            localStorage.setItem(this.UPS_LS_KEY, JSON.stringify(data));
+          },
+        },
+        // Perform user profile lookup
+        lookup: function(userId) {        
+          return this.localStorageAdapter.read()[userId];
+        },
+        // Persist user profile
+        save: function(userProfileMap) {
+          var overwriteData = this.localStorageAdapter.read();
+          overwriteData[userProfileMap.user_id] = userProfileMap;
+          this.localStorageAdapter.write(overwriteData);
+        },
+      };
+      
+      
       function getVisitorExperience(optimizely, userId) {
         // Create a user and decide a flag rule (such as an A/B test) for them
         var user = optimizely.createUserContext(userId);
@@ -37,17 +63,24 @@
         };
       }
 
+      //NOTE: This is the part where the Optimizely SDK Instance is created. 
       var optimizelyClientInstance = window.optimizelySdk.createInstance({
         datafile: window.optimizelyDatafile,
+        userProfileService: userProfileService
       })
 
       // Generate random user ids to represent visitors
       // Each visitor will get randomly & deterministically bucketed into a flag variation
       var userIds = [];
+      //NOTE: This line below is to create just 1 user id (visitor Id). 
+      userIds = ['1234567890'];
+      //NOTE: Uncomment this to create a list of 50 users.
+      /*
       for (var i = 0; i < 50; i++) {
         let id = Math.floor(Math.random() * (1000000 - 100000) + 100000);
         userIds.push(id.toString());
       }
+      */
 
       // For each visitor, let's see what experience they get
       var usersExperiences = [];
