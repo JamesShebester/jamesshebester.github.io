@@ -39,7 +39,17 @@
           this.localStorageAdapter.write(overwriteData);
         },
       };
+
+      const onDecision = ({ type, userId, attributes, decisionInfo }) => {
+        // Add a DECISION Notification Listener for type FLAG
+          var configData = optimizelyClientInstance.getOptimizelyConfig();
+          var experimentId = configData.experimentMaps[decisionInfo.ruleKey].id;
+          console.log(`OPTI: Experiment ID - ${experimentId}.`);
+        }
+      }
       
+      const notificationId = optimizelyClientInstance.notificationCenter.addNotificationListener(
+        optimizelySdk.enums.NOTIFICATION_TYPES.DECISION, onDecision,);
       
       function getVisitorExperience(optimizely, userId) {
         // Create a user and decide a flag rule (such as an A/B test) for them
