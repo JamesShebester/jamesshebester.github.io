@@ -72,8 +72,12 @@
       const onDecision = ({ type, userId, attributes, decisionInfo }) => {
         // Add a DECISION Notification Listener for type FLAG
           var configData = optimizelyClientInstance.getProjectConfig();
-          var experimentId = configData.experimentKeyMap[decisionInfo.ruleKey].id ?? NULL;
-          var variationId = configData.experimentKeyMap[decisionInfo.ruleKey].variationKeyMap[decisionInfo.variationKey].id ?? NULL;
+          const experiment = configData.experimentKeyMap[decisionInfo.ruleKey] ?? {};
+          const variation = experiment.variationKeyMap[decisionInfo.variationKey] ?? {};
+
+          const experimentId = experiment.id || null;
+          const variationId = variation.id || null;
+
           console.log(`OPTI: Experiment ID - ${experimentId}, Variation ID - ${variationId}.`);
         };
       
