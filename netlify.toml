@@ -1,7 +1,7 @@
 [build]
-  publish = "."  # This tells Netlify to serve your HTML files from the root
+  publish = "."
   edge_functions = "netlify/edge-functions"
 
 [[edge_functions]]
-  path = "/hello"
-  function = "hello"
+  path = "/"
+  function = "inject-message"
