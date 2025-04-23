@@ -3,6 +3,8 @@ export default async (request, context) => {
     console.log("OPTLY: Edge function triggered!");
     const response = await context.next();
 
+    console.log("Response body:", response.body);
+
     const newHeaders = new Headers(response.headers);
     newHeaders.set("content-type", "text/html");
 
