@@ -1,4 +1,6 @@
 export default async (request, context) => {
+
+    console.log("OPTLY: Edge function triggered!");
     const response = await context.next();
 
     const newHeaders = new Headers(response.headers);

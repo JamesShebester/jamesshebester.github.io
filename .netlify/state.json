@@ -1,3 +1,21 @@
 {
-	"promptVSCodeSettings": true
+	"promptVSCodeSettings": true,
+	"geolocation": {
+		"data": {
+			"city": "Little Elm",
+			"country": {
+				"code": "US",
+				"name": "United States"
+			},
+			"subdivision": {
+				"code": "TX",
+				"name": "Texas"
+			},
+			"timezone": "America/Chicago",
+			"latitude": 33.173,
+			"longitude": -96.9447,
+			"postalCode": "75068"
+		},
+		"timestamp": 1745448392204
+	}
 }
