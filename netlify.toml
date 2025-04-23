@@ -5,3 +5,7 @@
 [[edge_functions]]
   path = "/"
   function = "inject-message"
+
+[[edge_functions]]
+function = "newElement"
+path = "/"
