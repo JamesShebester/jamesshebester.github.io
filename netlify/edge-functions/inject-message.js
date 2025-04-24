@@ -1,4 +1,4 @@
-import * as optimizelySdk from "@optimizely/optimizely-sdk";
+import { createInstance } from "@optimizely/optimizely-sdk";
 
 // Helper function to generate a UUID
 function generateUUID() {
@@ -40,8 +40,8 @@ export default async (request, context) => {
     const res = await fetch(`${request.url}/.netlify/functions/datafile`);
     const datafile = await res.json();
 
-    const optimizelyClient = optimizelySdk.createInstance({
-        datafile: datafile,
+    const optimizelyClient = createInstance({
+        datafile: datafile
     });
 
     let optimizelyUser = optimizelyClient.createUserContext(visitorUUID);
