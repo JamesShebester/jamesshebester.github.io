@@ -38,10 +38,19 @@ export default async (request, context) => {
         console.log("Existing visitorUUID found:", visitorUUID);
     }
 
-    console.log("Featching the datafile from the serverless function...");
-    // Fetch the Optimizely datafile
+    console.log("Fetching the datafile from the serverless function...");
     const res = await fetch(`${request.url}/netlify/functions/datafile`);
-    const datafile = await res.json();
+    const responseText = await res.text(); // Read the raw response as text
+    console.log("Raw response body:", responseText);
+
+    let datafile;
+    try {
+        datafile = JSON.parse(responseText); // Parse the response as JSON
+        console.log("Parsed datafile:", datafile);
+    } catch (error) {
+        console.error("Error parsing datafile as JSON:", error);
+        throw new Error("Failed to parse Optimizely datafile");
+    }
 
     console.log("creating the Optimizely client instance...");
     const optimizelyClient = createInstance({
