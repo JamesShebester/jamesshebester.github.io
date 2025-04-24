@@ -1,4 +1,4 @@
-const fetch = require("node-fetch");
+import fetch from "node-fetch";
 
 let cachedDatafile = null; // Cache for the datafile
 let cacheTimestamp = null; // Timestamp of the last fetch
