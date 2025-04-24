@@ -1,61 +1,59 @@
-import { getStore } from '@netlify/blobs';
+const fetch = require("node-fetch");
 
-const store = getStore({ name: 'optimizely-datafile' });
-const OPTIMIZELY_DATAFILE_URL = 'https://cdn.optimizely.com/datafiles/FN6PNAH4J4dcZQDj6epN5.json'; // Replace this
-const TTL_MS = 5 * 60 * 1000; // 5 minutes
+let cachedDatafile = null; // Cache for the datafile
+let cacheTimestamp = null; // Timestamp of the last fetch
+const TTL = 5 * 60 * 1000; // Time-to-live in milliseconds (5 minutes)
 
-export async function handler(event) {
-    if (event.httpMethod === 'GET') {
-        let cached = await store.get('datafile', { type: 'json' });
+exports.handler = async (event, context) => {
+    const datafileUrl = "https://cdn.optimizely.com/datafiles/FN6PNAH4J4dcZQDj6epN5.json"; // Replace with your actual Optimizely datafile URL
 
+    try {
+        // Check if the cache is still valid
         const now = Date.now();
-        const isExpired = !cached || !cached.timestamp || now - cached.timestamp > TTL_MS;
-
-        let datafile;
-
-        if (isExpired) {
-            const res = await fetch(OPTIMIZELY_DATAFILE_URL);
-            const freshData = await res.json();
-
-            datafile = {
-                timestamp: now,
-                content: freshData,
+        if (cachedDatafile && cacheTimestamp && now - cacheTimestamp < TTL) {
+            console.log("Returning cached datafile");
+            return {
+                statusCode: 200,
+                body: JSON.stringify(cachedDatafile),
             };
+        }
 
-            await store.setJSON('datafile', datafile);
-            console.log('[Blob] Refreshed and cached new datafile');
-        } else {
-            datafile = cached;
-            console.log('[Blob] Using cached datafile');
+        // Fetch the datafile from Optimizely
+        console.log("Fetching new datafile from Optimizely...");
+        const response = await fetch(datafileUrl);
+
+        if (!response.ok) {
+            console.error("Failed to fetch Optimizely datafile:", response.status, response.statusText);
+            return {
+                statusCode: response.status,
+                body: `Failed to fetch Optimizely datafile: ${response.statusText}`,
+            };
+        }
+
+        // Parse and cache the datafile
+        cachedDatafile = await response.json();
+        cacheTimestamp = now;
+        console.log("Fetched and cached new datafile");
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify(cachedDatafile),
+        };
+    } catch (error) {
+        console.error("Error fetching Optimizely datafile:", error);
+
+        // If an error occurs, return the cached datafile if available
+        if (cachedDatafile) {
+            console.log("Returning cached datafile due to error");
+            return {
+                statusCode: 200,
+                body: JSON.stringify(cachedDatafile),
+            };
         }
 
         return {
-            statusCode: 200,
-            body: JSON.stringify(datafile.content),
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-cache',
-            },
+            statusCode: 500,
+            body: "Internal Server Error",
         };
     }
-
-    if (event.httpMethod === 'POST') {
-        const body = JSON.parse(event.body);
-        const payload = {
-            timestamp: Date.now(),
-            content: body,
-        };
-
-        await store.setJSON('datafile', payload);
-
-        return {
-            statusCode: 200,
-            body: 'Datafile manually updated',
-        };
-    }
-
-    return {
-        statusCode: 405,
-        body: 'Method Not Allowed',
-    };
-}
+};
