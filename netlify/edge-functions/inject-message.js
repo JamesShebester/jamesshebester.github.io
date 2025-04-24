@@ -39,8 +39,8 @@ export default async (request, context) => {
     }
 
     console.log("Fetching the datafile from the serverless function...");
-    console.log("Fetching datafile from URL:", `${request.url}netlify/functions/datafile`);
-    const res = await fetch(`${request.url}/netlify/functions/datafile`);
+    console.log("Fetching datafile from URL:", `${request.url}/.netlify/functions/datafile`);
+    const res = await fetch(`${request.url}/.netlify/functions/datafile`);
     const responseText = await res.text(); // Read the raw response as text
     console.log("Raw response body:", responseText);
 
