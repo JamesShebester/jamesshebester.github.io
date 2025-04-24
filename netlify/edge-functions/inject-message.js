@@ -49,7 +49,7 @@ export default async (request, context) => {
     let optimizelyUser = optimizelyClient.createUserContext(visitorUUID);
 
     const decision = optimizelyUser.decide("netlify_experiment");
-    const backgroundColor = decision.variables?.backgroundColor;
+    const backgroundColor = decision.variables?.background_color;
 
     const response = await context.next();
 
