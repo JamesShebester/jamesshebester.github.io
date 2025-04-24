@@ -1,4 +1,6 @@
-import { createInstance } from "@optimizely/optimizely-sdk";
+import {
+    createInstance
+} from '@optimizely/optimizely-sdk/dist/optimizely.lite.es';
 
 // Helper function to generate a UUID
 function generateUUID() {
