@@ -38,20 +38,24 @@ export default async (request, context) => {
         console.log("Existing visitorUUID found:", visitorUUID);
     }
 
+    console.log("Featching the datafile from the serverless function...");
     // Fetch the Optimizely datafile
     const res = await fetch(`${request.url}/netlify/functions/datafile`);
     const datafile = await res.json();
 
+    console.log("creating the Optimizely client instance...");
     const optimizelyClient = createInstance({
         datafile: datafile
     });
 
     let optimizelyUser = optimizelyClient.createUserContext(visitorUUID);
 
+    console.log("getting optimizely decision...");
     const decision = optimizelyUser.decide("netlify_experiment");
     console.log("Decision:", decision);
 
     const backgroundColor = decision.variables?.background_color;
+    console.log("Background color from Optimizely:", backgroundColor);
 
     const response = await context.next();
 
