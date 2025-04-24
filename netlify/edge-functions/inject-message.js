@@ -39,7 +39,7 @@ export default async (request, context) => {
     }
 
     // Fetch the Optimizely datafile
-    const res = await fetch(`${request.url}/.netlify/functions/datafile`);
+    const res = await fetch(`${request.url}/netlify/functions/datafile`);
     const datafile = await res.json();
 
     const optimizelyClient = createInstance({
