@@ -1,11 +1,14 @@
 [build]
-  publish = "."  
+  publish = "." 
+  functions = "netlify/functions"
   edge_functions = "netlify/edge-functions"
 
 [[edge_functions]]
   path = "/"
   function = "inject-message"
 
-[[edge_functions]]
-function = "newElement"
-path = "/"
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
