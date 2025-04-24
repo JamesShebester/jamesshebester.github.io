@@ -1,6 +1,7 @@
 {
+  "type": "module",
   "dependencies": {
     "@optimizely/optimizely-sdk": "^5.3.5",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^2.7.0"
   }
 }
